@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class LoginVC: UIViewController {
     
@@ -34,6 +35,7 @@ class LoginVC: UIViewController {
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
         field.backgroundColor = .white
+        field.textColor = .black
         field.attributedPlaceholder = NSAttributedString(
             string: "Email Address...",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray]
@@ -54,7 +56,8 @@ class LoginVC: UIViewController {
         field.leftViewMode = .always
         field.isSecureTextEntry = true
         field.backgroundColor = .white
-        
+        field.textColor = .black
+
         field.attributedPlaceholder = NSAttributedString(
             string: "Password...",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray]
@@ -119,6 +122,16 @@ class LoginVC: UIViewController {
               !email.isEmpty, !password.isEmpty, password.count >= 6 else {
             alertUserLoginError()
             return
+        }
+        
+        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            guard let result = authResult, error == nil else {
+                print("Failed to log in user with email: \(email)")
+                return
+            }
+            
+            let user = result.user
+            print("Logged in user: \(user)")
         }
     }
     
