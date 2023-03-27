@@ -14,18 +14,21 @@ final class DatabaseManager {
     
     private let database = Database.database().reference()
     
-    static func safeEmail(emailAddress: String) -> String {
-        var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
-        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
-        return safeEmail
-    }
+//    static func safeEmail(emailAddress: String) -> String {
+//        var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
+//        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+//        return safeEmail
+//    }
 }
 
 extension DatabaseManager {
     
     public func userExists(with email: String, completion: @escaping ((Bool) -> Void)) {
         
-        database.child(email).observeSingleEvent(of: .value, with:  { snapshot in
+        var safeEmail = email.replacingOccurrences(of: ".", with: "_")
+        safeEmail = safeEmail.replacingOccurrences(of: ".", with: "_")
+        
+        database.child(safeEmail).observeSingleEvent(of: .value, with:  { snapshot in
             guard snapshot.value as? String != nil else {
                 completion(false)
                 return
@@ -35,12 +38,9 @@ extension DatabaseManager {
     }
     
     public func insertUser(with user: ChatAppUser) {
-        database.child(user.emailAddress).setValue(["first_name" : user.firstName,
+        database.child(user.safeEmail).setValue(["first_name" : user.firstName,
                                                     "last_name": user.lastName])
-        
     }
-    
-    
 }
 
 struct ChatAppUser {
@@ -48,4 +48,10 @@ struct ChatAppUser {
     let lastName: String
     let emailAddress: String
    // let profilePictureUrl: String
+    
+    var safeEmail: String {
+        var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "_")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "_")
+        return safeEmail
+    }
 }
